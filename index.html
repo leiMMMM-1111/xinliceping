@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小学生心理测评系统</title>
+    <style>
+        :root {
+            --primary: #4A90D9;
+            --primary-dark: #357ABD;
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --text-light: #666666;
+            --border: #e0e6ed;
+            --success: #52c41a;
+            --warning: #faad14;
+            --danger: #ff4d4f;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+            --student-primary: #5B8FF9;
+            --teacher-primary: #F6BD16;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image: radial-gradient(ellipse at 20% 20%, #e8f0fe 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, #fef6e4 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, #f0f4f8 0%, transparent 100%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .container.wide {
+            max-width: 1100px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #5B8FF9 0%, #4A90D9 40%, #3d7ec5 100%);
+            color: #fff;
+            padding: 22px 30px;
+            text-align: center;
+            position: relative;
+        }
+        .header.teacher-header {
+            background: linear-gradient(135deg, #f6bd16 0%, #e8a810 40%, #c98e0a 100%);
+        }
+        .header h1 {
+            font-size: 1.6em;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+        .header .subtitle {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-top: 4px;
+            letter-spacing: 2px;
+        }
+        .header .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-top: 6px;
+            letter-spacing: 1px;
+        }
+
+        .body-content {
+            padding: 28px 30px;
+            max-height: 65vh;
+            overflow-y: auto;
+        }
+        .body-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .body-content::-webkit-scrollbar-thumb {
+            background: #d0d7e0;
+            border-radius: 10px;
+        }
+
+        /* 入口选择 */
+        .entry-select {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 20px 0;
+        }
+        .entry-card {
+            flex: 1;
+            min-width: 180px;
+            max-width: 260px;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: #fafbfc;
+            user-select: none;
+        }
+        .entry-card:hover {
+            border-color: #5B8FF9;
+            box-shadow: 0 6px 20px rgba(91, 143, 249, 0.15);
+            transform: translateY(-3px);
+            background: #fff;
+        }
+        .entry-card.teacher-card:hover {
+            border-color: #F6BD16;
+            box-shadow: 0 6px 20px rgba(246, 189, 22, 0.2);
+        }
+        .entry-card .icon {
+            font-size: 3em;
+            margin-bottom: 12px;
+        }
+        .entry-card .label {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .entry-card .desc {
+            font-size: 0.8em;
+            color: var(--text-light);
+            margin-top: 6px;
+        }
+
+        /* 表单 */
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text);
+            font-size: 0.95em;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1em;
+            transition: var(--transition);
+            background: #fafbfc;
+            color: var(--text);
+            outline: none;
+            font-family: inherit;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #5B8FF9;
+            box-shadow: 0 0 0 3px rgba(91, 143, 249, 0.1);
+            background: #fff;
+        }
+        .form-group input.teacher-input:focus {
+            border-color: #F6BD16;
+            box-shadow: 0 0 0 3px rgba(246, 189, 22, 0.1);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 1px;
+            font-family: inherit;
+            user-select: none;
+            text-align: center;
+        }
+        .btn-primary {
+            background: #5B8FF9;
+            color: #fff;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            background: #4A7DE0;
+            box-shadow: 0 4px 14px rgba(91, 143, 249, 0.35);
+        }
+        .btn-teacher {
+            background: #F6BD16;
+            color: #fff;
+            width: 100%;
+        }
+        .btn-teacher:hover {
+            background: #e8a810;
+            box-shadow: 0 4px 14px rgba(246, 189, 22, 0.35);
+        }
+        .btn-outline {
+            background: #fff;
+            color: #5B8FF9;
+            border: 2px solid #5B8FF9;
+        }
+        .btn-outline:hover {
+            background: #f0f5ff;
+        }
+        .btn-sm {
+            padding: 7px 16px;
+            font-size: 0.85em;
+            border-radius: 8px;
+            letter-spacing: 0;
+        }
+        .btn-danger {
+            background: #ff4d4f;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #e04345;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn-back {
+            background: #f0f0f0;
+            color: #555;
+            border: 1px solid #ddd;
+        }
+        .btn-back:hover {
+            background: #e5e5e5;
+        }
+
+        /* 进度条 */
+        .progress-wrap {
+            margin-bottom: 20px;
+            background: #eef2f7;
+            border-radius: 20px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #5B8FF9, #67C8FF);
+            border-radius: 20px;
+            transition: width 0.4s ease;
+        }
+        .progress-text {
+            text-align: center;
+            font-size: 0.85em;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        /* 题目 */
+        .question-block {
+            background: #fafcfd;
+            border: 1px solid #eef2f7;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            transition: var(--transition);
+        }
+        .question-block:hover {
+            border-color: #d0dff5;
+        }
+        .question-block .q-num {
+            display: inline-block;
+            background: #5B8FF9;
+            color: #fff;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 26px;
+            font-size: 0.8em;
+            font-weight: 700;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .question-block .q-text {
+            display: inline;
+            font-weight: 500;
+            color: var(--text);
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        .options {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .options label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 7px 14px;
+            border: 2px solid #e8ecf1;
+            border-radius: 20px;
+            font-size: 0.85em;
+            transition: var(--transition);
+            user-select: none;
+            background: #fff;
+            font-weight: 500;
+            color: #555;
+        }
+        .options label:hover {
+            border-color: #b0c8e8;
+            background: #f8fafe;
+        }
+        .options input[type="radio"] {
+            accent-color: #5B8FF9;
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+        }
+        .options input[type="radio"]:checked+span {
+            color: #5B8FF9;
+            font-weight: 700;
+        }
+        .options label:has(input:checked) {
+            border-color: #5B8FF9;
+            background: #eef5ff;
+        }
+
+        /* 表格 */
+        .table-wrap {
+            overflow-x: auto;
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+        .table-wrap::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        .table-wrap::-webkit-scrollbar-thumb {
+            background: #d0d7e0;
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        table th,
+        table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eef2f7;
+            text-align: center;
+            white-space: nowrap;
+        }
+        table th {
+            background: #f8fafc;
+            font-weight: 700;
+            color: #444;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        table tbody tr {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        table tbody tr:hover {
+            background: #f8fafe;
+        }
+        table tbody tr.selected {
+            background: #eef5ff;
+            font-weight: 600;
+        }
+        .badge-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.78em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .badge-good {
+            background: #e6f7e6;
+            color: #389e0d;
+        }
+        .badge-normal {
+            background: #fffbe6;
+            color: #d48806;
+        }
+        .badge-attention {
+            background: #fff1f0;
+            color: #cf1322;
+        }
+        .badge-excellent {
+            background: #e6f0ff;
+            color: #1d5bbf;
+        }
+
+        /* 分析面板 */
+        .analysis-panel {
+            background: #fdfdff;
+            border: 2px solid #e8ecf1;
+            border-radius: 14px;
+            padding: 20px;
+            margin-top: 16px;
+            display: none;
+        }
+        .analysis-panel.active {
+            display: block;
+            animation: fadeIn 0.35s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .analysis-panel h3 {
+            margin-bottom: 14px;
+            color: #333;
+            font-size: 1.1em;
+            border-bottom: 2px solid #eef2f7;
+            padding-bottom: 10px;
+        }
+        .dimension-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            margin: 6px 0;
+            background: #fafcfd;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .dimension-row .dim-name {
+            font-weight: 600;
+            color: #444;
+            min-width: 80px;
+        }
+        .dimension-row .dim-score {
+            font-weight: 700;
+            font-size: 1.1em;
+            min-width: 40px;
+            text-align: center;
+        }
+        .dimension-row .dim-bar-wrap {
+            flex: 1;
+            min-width: 120px;
+            height: 8px;
+            background: #eef2f7;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .dimension-row .dim-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        .dimension-row .dim-level {
+            font-size: 0.85em;
+            font-weight: 600;
+            min-width: 70px;
+            text-align: center;
+        }
+        .summary-box {
+            background: #fffef5;
+            border-left: 4px solid #F6BD16;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-top: 14px;
+            font-size: 0.9em;
+            line-height: 1.7;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+            animation: slideDown 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        .toast-success {
+            background: #52c41a;
+            color: #fff;
+        }
+        .toast-info {
+            background: #5B8FF9;
+            color: #fff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        .empty-state .icon {
+            font-size: 3em;
+            margin-bottom: 12px;
+        }
+        .highlight-num {
+            font-weight: 700;
+            color: #5B8FF9;
+            font-size: 1.2em;
+        }
+        .divider {
+            border: none;
+            border-top: 1px solid #eef2f7;
+            margin: 16px 0;
+        }
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .filter-row select {
+            padding: 8px 14px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 0.9em;
+            outline: none;
+            font-family: inherit;
+            background: #fff;
+            cursor: pointer;
+        }
+        .filter-row select:focus {
+            border-color: #F6BD16;
+        }
+        .stat-cards {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            flex: 1;
+            min-width: 100px;
+            background: #fafcfd;
+            border-radius: 10px;
+            padding: 14px 16px;
+            text-align: center;
+            border: 1px solid #eef2f7;
+        }
+        .stat-card .stat-num {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #5B8FF9;
+        }
+        .stat-card .stat-label {
+            font-size: 0.78em;
+            color: #888;
+            margin-top: 2px;
+        }
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 14px;
+            }
+            .body-content {
+                padding: 16px 12px;
+                max-height: 60vh;
+            }
+            .header {
+                padding: 16px 18px;
+            }
+            .header h1 {
+                font-size: 1.3em;
+            }
+            .options label {
+                padding: 5px 10px;
+                font-size: 0.78em;
+            }
+            .entry-card {
+                min-width: 130px;
+                padding: 20px 14px;
+            }
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+            table {
+                font-size: 0.75em;
+            }
+            table th,
+            table td {
+                padding: 6px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainContainer">
+        <!-- 动态内容由JS渲染 -->
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <script>
+        (function() {
+            // ==================== 全局状态 ====================
+            const STORAGE_KEY = 'psy_student_records';
+            const TEACHER_ACCOUNT = 'tszxx';
+            const TEACHER_PASSWORD = 'tszxx123';
+
+            let currentView = 'entry'; // entry | studentLogin | studentQuiz | studentDone | teacherLogin | teacherDashboard
+            let studentInfo = null; // { studentId, className, gender }
+            let currentPage = 1;
+            const totalPages = 5;
+            const questionsPerPage = 10;
+            let answers = {}; // { questionIndex: selectedValue }
+            let teacherSelectedStudent = null;
+
+            // ==================== 题目数据 ====================
+            // 50道题，4点量表：1=从不, 2=偶尔, 3=经常, 4=总是
+            // reverseScored 题目：高分=问题严重
+            const questions = [
+                // 情绪维度 (1-12)
+                { id: 1, text: '我觉得心情很好，每天都很开心', dimension: '情绪状态', reverse: true },
+                { id: 2, text: '我容易感到害怕或紧张', dimension: '情绪状态', reverse: false },
+                { id: 3, text: '我会因为小事而担心很久', dimension: '情绪状态', reverse: false },
+                { id: 4, text: '我容易发脾气或生气', dimension: '情绪状态', reverse: false },
+                { id: 5, text: '我感到孤单，没人陪我玩', dimension: '情绪状态', reverse: false },
+                { id: 6, text: '我经常想哭或心情低落', dimension: '情绪状态', reverse: false },
+                { id: 7, text: '我对很多事情提不起兴趣', dimension: '情绪状态', reverse: false },
+                { id: 8, text: '我觉得很累，没有精神', dimension: '情绪状态', reverse: false },
+                { id: 9, text: '我晚上能睡得很好', dimension: '情绪状态', reverse: true },
+                { id: 10, text: '我吃饭胃口很好', dimension: '情绪状态', reverse: true },
+                { id: 11, text: '我经常担心不好的事情会发生', dimension: '情绪状态', reverse: false },
+                { id: 12, text: '我能很快让自己的心情平静下来', dimension: '情绪状态', reverse: true },
+                // 社交维度 (13-24)
+                { id: 13, text: '我喜欢和同学一起玩游戏', dimension: '社交能力', reverse: true },
+                { id: 14, text: '我在学校有好朋友', dimension: '社交能力', reverse: true },
+                { id: 15, text: '我和同学们相处得很愉快', dimension: '社交能力', reverse: true },
+                { id: 16, text: '我害怕主动和别人说话', dimension: '社交能力', reverse: false },
+                { id: 17, text: '有同学会欺负我或取笑我', dimension: '社交能力', reverse: false },
+                { id: 18, text: '我愿意帮助有困难的同学', dimension: '社交能力', reverse: true },
+                { id: 19, text: '我喜欢参加班级的集体活动', dimension: '社交能力', reverse: true },
+                { id: 20, text: '我觉得同学们都喜欢我', dimension: '社交能力', reverse: true },
+                { id: 21, text: '我能主动向別人打招呼问好', dimension: '社交能力', reverse: true },
+                { id: 22, text: '和同学发生矛盾时，我会主动和好', dimension: '社交能力', reverse: true },
+                { id: 23, text: '我在学校感到被排斥或孤立', dimension: '社交能力', reverse: false },
+                { id: 24, text: '我愿意把自己的东西分享给同学', dimension: '社交能力', reverse: true },
+                // 学习维度 (25-36)
+                { id: 25, text: '我喜欢来学校上学', dimension: '学习适应', reverse: true },
+                { id: 26, text: '我觉得学习新知识很有趣', dimension: '学习适应', reverse: true },
+                { id: 27, text: '上课时我能专心听老师讲课', dimension: '学习适应', reverse: true },
+                { id: 28, text: '我能按时完成每天的作业', dimension: '学习适应', reverse: true },
+                { id: 29, text: '我觉得学习压力很大', dimension: '学习适应', reverse: false },
+                { id: 30, text: '考试前我会非常紧张', dimension: '学习适应', reverse: false },
+                { id: 31, text: '我对自己目前的学习成绩感到满意', dimension: '学习适应', reverse: true },
+                { id: 32, text: '遇到不会的题目，我会主动请教老师', dimension: '学习适应', reverse: true },
+                { id: 33, text: '我喜欢阅读课外书', dimension: '学习适应', reverse: true },
+                { id: 34, text: '我觉得老师喜欢我、关心我', dimension: '学习适应', reverse: true },
+                { id: 35, text: '课堂上我能认真听讲不走神', dimension: '学习适应', reverse: true },
+                { id: 36, text: '学习让我感到快乐和充实', dimension: '学习适应', reverse: true },
+                // 自信维度 (37-44)
+                { id: 37, text: '我觉得自己是一个很棒的孩子', dimension: '自信心', reverse: true },
+                { id: 38, text: '我相信自己能把事情做好', dimension: '自信心', reverse: true },
+                { id: 39, text: '我敢于在课堂上举手发言', dimension: '自信心', reverse: true },
+                { id: 40, text: '我对自己外貌感到满意', dimension: '自信心', reverse: true },
+                { id: 41, text: '我经常觉得自己不如别的同学', dimension: '自信心', reverse: false },
+                { id: 42, text: '遇到困难时我不会轻易放弃', dimension: '自信心', reverse: true },
+                { id: 43, text: '我敢于尝试没做过的新事情', dimension: '自信心', reverse: true },
+                { id: 44, text: '我觉得自己身上有很多优点', dimension: '自信心', reverse: true },
+                // 行为习惯维度 (45-50)
+                { id: 45, text: '我每天都能按时起床不赖床', dimension: '行为习惯', reverse: true },
+                { id: 46, text: '我能自己整理好书包和房间', dimension: '行为习惯', reverse: true },
+                { id: 47, text: '我经常参加体育锻炼或户外活动', dimension: '行为习惯', reverse: true },
+                { id: 48, text: '我能遵守学校的纪律和规定', dimension: '行为习惯', reverse: true },
+                { id: 49, text: '我能控制自己不动手打人', dimension: '行为习惯', reverse: true },
+                { id: 50, text: '我每天都有充足的睡眠时间', dimension: '行为习惯', reverse: true }
+            ];
+
+            // ==================== DOM引用 ====================
+            const container = document.getElementById('mainContainer');
+            const toastContainer = document.getElementById('toastContainer');
+
+            // ==================== 工具函数 ====================
+            function showToast(msg, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = 'toast toast-' + type;
+                toast.textContent = msg;
+                toastContainer.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.3s ease';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2000);
+            }
+
+            function getStoredRecords() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    return raw ? JSON.parse(raw) : [];
+                } catch (e) {
+                    return [];
+                }
+            }
+
+            function saveRecord(record) {
+                const records = getStoredRecords();
+                records.push(record);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            }
+
+            function deleteRecordById(recordId) {
+                let records = getStoredRecords();
+                records = records.filter(r => r.id !== recordId);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            }
+
+            function clearAllRecords() {
+                localStorage.removeItem(STORAGE_KEY);
+            }
+
+            function getAdjustedScore(rawScore, isReverse) {
+                // 如果是正向题(reverse=true)，则反转：5-原始分，使高分=问题
+                // 如果是反向题(reverse=false)，保持原始分（高分=问题）
+                if (isReverse) {
+                    return 5 - rawScore;
+                }
+                return rawScore;
+            }
+
+            function analyzeRecord(record) {
+                const dims = {};
+                questions.forEach((q, idx) => {
+                    const rawAnswer = record.answers[idx];
+                    if (rawAnswer === undefined || rawAnswer === null) return;
+                    const adjusted = getAdjustedScore(rawAnswer, q.reverse);
+                    if (!dims[q.dimension]) {
+                        dims[q.dimension] = { total: 0, count: 0, rawTotal: 0 };
+                    }
+                    dims[q.dimension].total += adjusted;
+                    dims[q.dimension].count += 1;
+                    dims[q.dimension].rawTotal += rawAnswer;
+                });
+
+                const dimensionResults = {};
+                let overallTotal = 0;
+                let overallCount = 0;
+                for (const [dimName, data] of Object.entries(dims)) {
+                    const avgAdjusted = data.total / data.count;
+                    const avgRaw = data.rawTotal / data.count;
+                    let level, colorClass;
+                    if (avgAdjusted <= 1.5) level = '良好';
+                    else if (avgAdjusted <= 2.5) level = '一般';
+                    else if (avgAdjusted <= 3.2) level = '需要关注';
+                    else level = '亟需帮助';
+
+                    if (level === '良好') colorClass = 'badge-good';
+                    else if (level === '一般') colorClass = 'badge-normal';
+                    else if (level === '需要关注') colorClass = 'badge-attention';
+                    else colorClass = 'badge-attention';
+
+                    dimensionResults[dimName] = {
+                        avgAdjusted: avgAdjusted.toFixed(2),
+                        avgRaw: avgRaw.toFixed(2),
+                        level,
+                        colorClass,
+                        totalAdjusted: data.total,
+                        count: data.count
+                    };
+                    overallTotal += data.total;
+                    overallCount += data.count;
+                }
+
+                const overallAvg = overallCount > 0 ? overallTotal / overallCount : 0;
+                let overallLevel;
+                if (overallAvg <= 1.5) overallLevel = '整体心理状态良好，未见明显问题';
+                else if (overallAvg <= 2.5) overallLevel = '整体心理状态一般，部分方面可适当关注';
+                else if (overallAvg <= 3.2) overallLevel = '整体心理状态需关注，建议进一步了解和引导';
+                else overallLevel = '整体心理状态亟需关注，建议寻求专业心理辅导';
+
+                return {
+                    dimensionResults,
+                    overallAvg: overallAvg.toFixed(2),
+                    overallLevel,
+                    totalQuestionsAnswered: overallCount
+                };
+            }
+
+            // ==================== 渲染函数 ====================
+            function renderEntry() {
+                currentView = 'entry';
+                studentInfo = null;
+                answers = {};
+                currentPage = 1;
+                teacherSelectedStudent = null;
+                container.classList.remove('wide');
+                container.innerHTML = `
+                    <div class="header">
+                        <h1>🌈 小学生心理测评系统</h1>
+                        <div class="subtitle">关爱心灵 · 健康成长</div>
+                    </div>
+                    <div class="body-content">
+                        <div class="entry-select">
+                            <div class="entry-card" id="entryStudent">
+                                <div class="icon">👦👧</div>
+                                <div class="label">学生入口</div>
+                                <div class="desc">参与心理测评答题</div>
+                            </div>
+                            <div class="entry-card teacher-card" id="entryTeacher">
+                                <div class="icon">👩‍🏫👨‍🏫</div>
+                                <div class="label">教师入口</div>
+                                <div class="desc">查看测评数据与分析</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('entryStudent').addEventListener('click', () => renderStudentLogin());
+                document.getElementById('entryTeacher').addEventListener('click', () => renderTeacherLogin());
+            }
+
+            function renderStudentLogin() {
+                currentView = 'studentLogin';
+                studentInfo = null;
+                answers = {};
+                currentPage = 1;
+                container.classList.remove('wide');
+                container.innerHTML = `
+                    <div class="header">
+                        <h1>📝 学生登录</h1>
+                        <div class="subtitle">请输入你的信息开始测评</div>
+                    </div>
+                    <div class="body-content">
+                        <div class="form-group">
+                            <label>学号</label>
+                            <input type="text" id="inputStudentId" placeholder="请输入你的学号" maxlength="20">
+                        </div>
+                        <div class="form-group">
+                            <label>班级</label>
+                            <select id="inputClassName">
+                                <option value="">请选择班级</option>
+                                <option value="一年级">一年级</option>
+                                <option value="二年级">二年级</option>
+                                <option value="三年级">三年级</option>
+                                <option value="四年级">四年级</option>
+                                <option value="五年级">五年级</option>
+                                <option value="六年级">六年级</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>性别</label>
+                            <select id="inputGender">
+                                <option value="">请选择性别</option>
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="btnStartQuiz">开始答题</button>
+                        <div style="text-align:center;margin-top:12px;">
+                            <button class="btn btn-back btn-sm" id="btnBackEntry1">← 返回首页</button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('btnStartQuiz').addEventListener('click', () => {
+                    const sid = document.getElementById('inputStudentId').value.trim();
+                    const cls = document.getElementById('inputClassName').value;
+                    const gen = document.getElementById('inputGender').value;
+                    if (!sid) { showToast('请输入学号', 'info'); return; }
+                    if (!cls) { showToast('请选择班级', 'info'); return; }
+                    if (!gen) { showToast('请选择性别', 'info'); return; }
+                    studentInfo = { studentId: sid, className: cls, gender: gen };
+                    answers = {};
+                    currentPage = 1;
+                    renderQuizPage();
+                });
+                document.getElementById('btnBackEntry1').addEventListener('click', renderEntry);
+            }
+
+            function renderQuizPage() {
+                currentView = 'studentQuiz';
+                container.classList.remove('wide');
+                const startIdx = (currentPage - 1) * questionsPerPage;
+                const endIdx = Math.min(startIdx + questionsPerPage, questions.length);
+                const pageQuestions = questions.slice(startIdx, endIdx);
+
+                let questionsHTML = '';
+                pageQuestions.forEach((q, i) => {
+                    const globalIdx = startIdx + i;
+                    const selectedVal = answers[globalIdx] !== undefined ? answers[globalIdx] : null;
+                    questionsHTML += `
+                        <div class="question-block">
+                            <span class="q-num">${q.id}</span>
+                            <span class="q-text">${q.text}</span>
+                            <div class="options">
+                                <label><input type="radio" name="q${globalIdx}" value="1" ${selectedVal===1?'checked':''}><span>从不</span></label>
+                                <label><input type="radio" name="q${globalIdx}" value="2" ${selectedVal===2?'checked':''}><span>偶尔</span></label>
+                                <label><input type="radio" name="q${globalIdx}" value="3" ${selectedVal===3?'checked':''}><span>经常</span></label>
+                                <label><input type="radio" name="q${globalIdx}" value="4" ${selectedVal===4?'checked':''}><span>总是</span></label>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                const progressPct = Math.round((currentPage / totalPages) * 100);
+                const answeredCount = Object.keys(answers).length;
+
+                container.innerHTML = `
+                    <div class="header">
+                        <h1>📋 心理测评问卷</h1>
+                        <div class="subtitle">请根据自己的真实情况认真回答</div>
+                        <div class="badge">已答 ${answeredCount} / ${questions.length} 题</div>
+                    </div>
+                    <div class="body-content">
+                        <div class="progress-text">第 ${currentPage} 页 / 共 ${totalPages} 页（共50题）</div>
+                        <div class="progress-wrap">
+                            <div class="progress-bar" style="width:${progressPct}%;"></div>
+                        </div>
+                        ${questionsHTML}
+                        <div class="btn-group" style="margin-top:18px;">
+                            ${currentPage > 1 ? '<button class="btn btn-outline btn-sm" id="btnPrev">← 上一页</button>' : ''}
+                            ${currentPage < totalPages ? '<button class="btn btn-primary btn-sm" id="btnNext">下一页 →</button>' : ''}
+                            ${currentPage === totalPages ? '<button class="btn btn-primary btn-sm" id="btnSubmit">✅ 提交答卷</button>' : ''}
+                        </div>
+                        <div style="text-align:center;margin-top:10px;">
+                            <button class="btn btn-back btn-sm" id="btnCancelQuiz">退出答题</button>
+                        </div>
+                    </div>
+                `;
+
+                // 保存当前页答案
+                function savePageAnswers() {
+                    const radios = container.querySelectorAll('input[type="radio"]:checked');
+                    radios.forEach(radio => {
+                        const name = radio.name;
+                        if (name.startsWith('q')) {
+                            const idx = parseInt(name.replace('q', ''));
+                            answers[idx] = parseInt(radio.value);
+                        }
+                    });
+                }
+
+                if (currentPage > 1) {
+                    document.getElementById('btnPrev').addEventListener('click', () => {
+                        savePageAnswers();
+                        currentPage--;
+                        renderQuizPage();
+                    });
+                }
+                if (currentPage < totalPages) {
+                    document.getElementById('btnNext').addEventListener('click', () => {
+                        savePageAnswers();
+                        // 检查当前页是否全部作答
+                        const pageStart = (currentPage - 1) * questionsPerPage;
+                        const pageEnd = Math.min(pageStart + questionsPerPage, questions.length);
+                        let allAnswered = true;
+                        for (let i = pageStart; i < pageEnd; i++) {
+                            if (answers[i] === undefined || answers[i] === null) {
+                                allAnswered = false;
+                                break;
+                            }
+                        }
+                        if (!allAnswered) {
+                            showToast('请完成当前页面所有题目后再翻页哦~', 'info');
+                            return;
+                        }
+                        currentPage++;
+                        renderQuizPage();
+                    });
+                }
+                if (currentPage === totalPages) {
+                    document.getElementById('btnSubmit').addEventListener('click', () => {
+                        savePageAnswers();
+                        // 检查所有题目
+                        let allDone = true;
+                        for (let i = 0; i < questions.length; i++) {
+                            if (answers[i] === undefined || answers[i] === null) {
+                                allDone = false;
+                                break;
+                            }
+                        }
+                        if (!allDone) {
+                            const missingCount = questions.length - Object.keys(answers).length;
+                            showToast(`还有 ${missingCount} 道题未作答，请检查所有页面`, 'info');
+                            return;
+                        }
+                        // 提交
+                        const record = {
+                            id: Date.now(),
+                            studentId: studentInfo.studentId,
+                            className: studentInfo.className,
+                            gender: studentInfo.gender,
+                            answers: { ...answers },
+                            timestamp: new Date().toISOString()
+                        };
+                        saveRecord(record);
+                        renderStudentDone();
+                    });
+                }
+                document.getElementById('btnCancelQuiz').addEventListener('click', () => {
+                    if (Object.keys(answers).length > 0) {
+                        if (!confirm('确定要退出答题吗？已作答的内容将不会保存。')) return;
+                    }
+                    answers = {};
+                    currentPage = 1;
+                    renderEntry();
+                });
+            }
+
+            function renderStudentDone() {
+                currentView = 'studentDone';
+                container.classList.remove('wide');
+                container.innerHTML = `
+                    <div class="header">
+                        <h1>🎉 提交成功</h1>
+                        <div class="subtitle">感谢你的参与！</div>
+                    </div>
+                    <div class="body-content" style="text-align:center;">
+                        <div style="font-size:4em;margin:20px 0;">✅</div>
+                        <p style="font-size:1.1em;color:#555;line-height:1.8;">
+                            你的测评答卷已经成功提交。<br>
+                            老师会认真查看你的情况。<br>
+                            祝你每一天都开心快乐！🌈
+                        </p>
+                        <button class="btn btn-primary" id="btnDoneBack" style="margin-top:16px;max-width:260px;">返回首页</button>
+                    </div>
+                `;
+                document.getElementById('btnDoneBack').addEventListener('click', renderEntry);
+            }
+
+            function renderTeacherLogin() {
+                currentView = 'teacherLogin';
+                container.classList.remove('wide');
+                container.innerHTML = `
+                    <div class="header teacher-header">
+                        <h1>🔐 教师登录</h1>
+                        <div class="subtitle">请验证身份进入管理端</div>
+                    </div>
+                    <div class="body-content">
+                        <div class="form-group">
+                            <label>账号</label>
+                            <input type="text" id="inputTeacherAccount" class="teacher-input" placeholder="" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label>密码</label>
+                            <input type="password" id="inputTeacherPassword" class="teacher-input" placeholder="" autocomplete="off">
+                        </div>
+                        <button class="btn btn-teacher" id="btnTeacherLogin">登 录</button>
+                        <div style="text-align:center;margin-top:12px;">
+                            <button class="btn btn-back btn-sm" id="btnBackEntry2">← 返回首页</button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('btnTeacherLogin').addEventListener('click', () => {
+                    const acc = document.getElementById('inputTeacherAccount').value.trim();
+                    const pwd = document.getElementById('inputTeacherPassword').value;
+                    if (acc === TEACHER_ACCOUNT && pwd === TEACHER_PASSWORD) {
+                        renderTeacherDashboard();
+                    } else {
+                        // 静默处理：清空密码框，无任何提示
+                        document.getElementById('inputTeacherPassword').value = '';
+                        document.getElementById('inputTeacherAccount').value = '';
+                        // 不显示任何错误提示
+                    }
+                });
+                // 回车键登录
+                container.querySelectorAll('.teacher-input').forEach(input => {
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            document.getElementById('btnTeacherLogin').click();
+                        }
+                    });
+                });
+                document.getElementById('btnBackEntry2').addEventListener('click', renderEntry);
+            }
+
+            function renderTeacherDashboard(filterClass = '') {
+                currentView = 'teacherDashboard';
+                container.classList.add('wide');
+                teacherSelectedStudent = null;
+                const records = getStoredRecords();
+                // 筛选
+                let filteredRecords = records;
+                if (filterClass) {
+                    filteredRecords = records.filter(r => r.className === filterClass);
+                }
+                // 按时间倒序
+                filteredRecords.sort((a, b) => b.id - a.id);
+
+                // 统计
+                const totalCount = records.length;
+                const classSet = new Set(records.map(r => r.className));
+                const uniqueClasses = [...classSet].sort();
+
+                let tableRows = '';
+                if (filteredRecords.length === 0) {
+                    tableRows = `<tr><td colspan="7" style="color:#999;padding:30px;">暂无测评数据</td></tr>`;
+                } else {
+                    filteredRecords.forEach((r, idx) => {
+                        const analysis = analyzeRecord(r);
+                        const dateStr = new Date(r.timestamp).toLocaleString('zh-CN');
+                        const isSelected = teacherSelectedStudent && teacherSelectedStudent.id === r.id;
+                        tableRows += `
+                            <tr class="${isSelected ? 'selected' : ''}" data-record-id="${r.id}">
+                                <td>${idx + 1}</td>
+                                <td>${r.studentId}</td>
+                                <td>${r.className}</td>
+                                <td>${r.gender}</td>
+                                <td>${dateStr}</td>
+                                <td><span class="badge-status ${analysis.overallAvg <= 2.5 ? 'badge-good' : analysis.overallAvg <= 3.2 ? 'badge-normal' : 'badge-attention'}">${analysis.overallAvg}分</span></td>
+                                <td>
+                                    <button class="btn btn-outline btn-sm btn-view-detail" data-record-id="${r.id}">查看详情</button>
+                                    <button class="btn btn-danger btn-sm btn-delete" data-record-id="${r.id}">删除</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                const classOptions = uniqueClasses.map(c => `<option value="${c}" ${filterClass===c?'selected':''}>${c}</option>`)
+                    .join('');
+
+                container.innerHTML = `
+                    <div class="header teacher-header">
+                        <h1>📊 教师管理端</h1>
+                        <div class="subtitle">学生心理测评数据与分析</div>
+                        <div class="badge">共 ${totalCount} 条记录 | ${uniqueClasses.length} 个班级</div>
+                    </div>
+                    <div class="body-content">
+                        <div class="stat-cards">
+                            <div class="stat-card"><div class="stat-num">${totalCount}</div><div class="stat-label">总提交数</div></div>
+                            <div class="stat-card"><div class="stat-num">${uniqueClasses.length}</div><div class="stat-label">涉及班级</div></div>
+                            <div class="stat-card"><div class="stat-num">${filteredRecords.length}</div><div class="stat-label">当前显示</div></div>
+                        </div>
+                        <div class="filter-row">
+                            <label style="font-weight:600;">筛选班级：</label>
+                            <select id="filterClassSelect">
+                                <option value="">全部班级</option>
+                                ${classOptions}
+                            </select>
+                            <button class="btn btn-outline btn-sm" id="btnRefreshData">🔄 刷新数据</button>
+                            <button class="btn btn-danger btn-sm" id="btnClearAll" style="margin-left:auto;">⚠ 清空全部数据</button>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>序号</th><th>学号</th><th>班级</th><th>性别</th><th>提交时间</th><th>综合评分</th><th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${tableRows}</tbody>
+                            </table>
+                        </div>
+                        <div id="analysisPanel" class="analysis-panel"></div>
+                        <div style="text-align:center;margin-top:14px;">
+                            <button class="btn btn-back btn-sm" id="btnTeacherLogout">退出登录</button>
+                        </div>
+                        <div style="text-align:center;color:#aaa;font-size:0.75em;margin-top:8px;">
+                            * 数据存储在当前浏览器的本地存储中
+                        </div>
+                    </div>
+                `;
+
+                // 筛选变化
+                document.getElementById('filterClassSelect').addEventListener('change', function() {
+                    renderTeacherDashboard(this.value);
+                });
+                // 刷新
+                document.getElementById('btnRefreshData').addEventListener('click', () => {
+                    renderTeacherDashboard(document.getElementById('filterClassSelect')?.value || '');
+                });
+                // 清空
+                document.getElementById('btnClearAll').addEventListener('click', () => {
+                    if (confirm('确定要清空全部学生测评数据吗？此操作不可恢复！')) {
+                        clearAllRecords();
+                        showToast('全部数据已清空', 'info');
+                        renderTeacherDashboard();
+                    }
+                });
+                // 退出
+                document.getElementById('btnTeacherLogout').addEventListener('click', renderEntry);
+                // 查看详情
+                container.querySelectorAll('.btn-view-detail').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const rid = parseInt(this.getAttribute('data-record-id'));
+                        const record = records.find(r => r.id === rid);
+                        if (record) {
+                            teacherSelectedStudent = record;
+                            showAnalysisPanel(record);
+                            // 高亮行
+                            container.querySelectorAll('tbody tr').forEach(tr => tr.classList
+                                .remove('selected'));
+                            const targetRow = container.querySelector(`tr[data-record-id="${rid}"]`);
+                            if (targetRow) targetRow.classList.add('selected');
+                        }
+                    });
+                });
+                // 删除单条
+                container.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const rid = parseInt(this.getAttribute('data-record-id'));
+                        if (confirm('确定删除该学生的测评记录吗？')) {
+                            deleteRecordById(rid);
+                            showToast('记录已删除', 'info');
+                            const panel = document.getElementById('analysisPanel');
+                            if (panel) panel.classList.remove('active');
+                            teacherSelectedStudent = null;
+                            renderTeacherDashboard(document.getElementById(
+                                'filterClassSelect')?.value || '');
+                        }
+                    });
+                });
+                // 如果之前有选中的学生，恢复面板
+                if (teacherSelectedStudent && records.find(r => r.id === teacherSelectedStudent.id)) {
+                    setTimeout(() => {
+                        showAnalysisPanel(teacherSelectedStudent);
+                        const tr = container.querySelector(`tr[data-record-id="${teacherSelectedStudent.id}"]`);
+                        if (tr) tr.classList.add('selected');
+                    }, 100);
+                }
+            }
+
+            function showAnalysisPanel(record) {
+                const panel = document.getElementById('analysisPanel');
+                if (!panel) return;
+                const analysis = analyzeRecord(record);
+                const dateStr = new Date(record.timestamp).toLocaleString('zh-CN');
+
+                let dimHTML = '';
+                const dimColors = {
+                    '情绪状态': '#5B8FF9',
+                    '社交能力': '#52c41a',
+                    '学习适应': '#faad14',
+                    '自信心': '#ff7a45',
+                    '行为习惯': '#722ed1'
+                };
+                for (const [dimName, data] of Object.entries(analysis.dimensionResults)) {
+                    const barColor = dimColors[dimName] || '#5B8FF9';
+                    const barWidth = Math.min((data.avgAdjusted / 4) * 100, 100);
+                    dimHTML += `
+                        <div class="dimension-row">
+                            <span class="dim-name">${dimName}</span>
+                            <span class="dim-score" style="color:${barColor};">${data.avgAdjusted} 分</span>
+                            <div class="dim-bar-wrap">
+                                <div class="dim-bar" style="width:${barWidth}%;background:${barColor};"></div>
+                            </div>
+                            <span class="dim-level"><span class="badge-status ${data.colorClass}">${data.level}</span></span>
+                        </div>
+                    `;
+                }
+
+                // 答案详情
+                let answerDetailHTML = '<div style="max-height:200px;overflow-y:auto;font-size:0.82em;line-height:1.8;">';
+                questions.forEach((q, idx) => {
+                    const rawVal = record.answers[idx];
+                    const valText = rawVal === 1 ? '从不' : rawVal === 2 ? '偶尔' : rawVal === 3 ? '经常' :
+                        rawVal === 4 ? '总是' : '未答';
+                    const adj = rawVal !== undefined ? getAdjustedScore(rawVal, q.reverse) : '-';
+                    answerDetailHTML +=
+                        `<span style="color:#888;">${q.id}.</span> ${q.text} → <b>${valText}</b> <span style="color:#aaa;font-size:0.75em;">(调整分:${adj})</span><br>`;
+                });
+                answerDetailHTML += '</div>';
+
+                panel.innerHTML = `
+                    <h3>📋 学生详情：${record.studentId} | ${record.className} | ${record.gender} | ${dateStr}</h3>
+                    <p style="color:#666;margin-bottom:12px;">综合评分：<span class="highlight-num">${analysis.overallAvg}</span> 分 | 答题数：${analysis.totalQuestionsAnswered} 题</p>
+                    <h4 style="margin-bottom:8px;">📊 各维度分析</h4>
+                    ${dimHTML}
+                    <div class="summary-box">
+                        <strong>📝 综合评估：</strong>${analysis.overallLevel}
+                    </div>
+                    <h4 style="margin-top:14px;margin-bottom:6px;">📝 各题原始答案</h4>
+                    ${answerDetailHTML}
+                `;
+                panel.classList.add('active');
+                panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // ==================== 初始化 ====================
+            renderEntry();
+
+            // ==================== 暴露接口 ====================
+            console.log('🌈 小学生心理测评系统已就绪');
+            console.log('  学生入口：学号+班级+性别 → 答题 → 提交（无分析）');
+            console.log('  教师入口：账号 tszxx / 密码 tszxx123 → 查看数据与分析');
+            console.log('  数据存储：浏览器 localStorage');
+        })();
+    </script>
+</body>
+</html>
